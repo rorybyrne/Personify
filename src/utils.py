@@ -48,6 +48,8 @@ def word_n_grams(tokens, n):
     :param n:
     :return a zip object (like a list) of n-tuples representing n-grams of the tokens:
     """
+    if n == 1:
+        return tokens
 
     return zip(*[tokens[i:] for i in range(n)])
 
@@ -77,6 +79,27 @@ def gen_word_seq_probabilities(ngrams):
             next_word_prob_dist[w] = float(next_words.count(w)) / num_next_words
         prob_dist[word_seq] = next_word_prob_dist
 
+    return prob_dist
+
+def unigram_probs(filename):
+    raw_tweets = process_csv(filename)
+    tokenized_tweets = [tokenize_tweet(t) for t in raw_tweets]
+    items = [token for full_tweet in tokenized_tweets for token in full_tweet]
+
+    prob_dist = defaultdict(int)
+    num_words = len(items)
+    for i in items:
+        if i in prob_dist:
+            prob_dist[i] += 1
+        else:
+            prob_dist[i] = 1
+
+    unq_items = set(items)
+
+    for w in unq_items:
+        prob_dist[w] = prob_dist[w] / num_words
+
+    #print(prob_dist)
     return prob_dist
 
 def process_csv(filename):
