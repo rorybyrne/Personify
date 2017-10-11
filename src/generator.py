@@ -27,14 +27,22 @@ def weighted_choice(dict):
         if r < tmp:
             return k
 
-probs = utils.get_n_gram_probs("/home/rory/projects/ronald/data/trump-tweets.csv", n=5)
+n = 3
+probs = utils.get_n_gram_probs("/home/rory/projects/ronald/data/trump-tweets.csv", n)
 
 # this is basically the seed word, to begin the sentence with.
 # will need to figure out a way for the system to choose this word intelligently
 # https://github.com/RoryOfByrne/ronald-trump/issues/4
-next_word = "we"
+w1 = "you"
+w2 = "own"
+output = [w1, w2]
 x = 0
 while x < 30:
-        print(next_word + " ", end='')
-        next_word = predict_word(probs, next_word)[0]
-        x += 1
+    leng = len(output)
+    # keys in the probability distribution are comma-separated: "first_word,second_word"
+    prev = ','.join(output[leng-n+1:])
+    next_word = predict_word(probs, prev)[0]
+    output.append(next_word)
+    x += 1
+
+print(' '.join(output))

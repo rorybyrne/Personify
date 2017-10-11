@@ -62,7 +62,8 @@ def gen_word_seq_probabilities(ngrams):
 
     prob_dist = defaultdict(list)
     for g in ngrams:
-        prob_dist[g[:-1][0]].append(g[-1])
+        # n-gram keys will be stored as comma-separated string values like "first,second"
+        prob_dist[','.join(g[:-1])].append(g[-1])
 
     for word_seq in prob_dist.keys():
         next_words = prob_dist[word_seq]
