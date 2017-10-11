@@ -36,12 +36,19 @@ def tokenize_tweet(tweet):
 
 def word_n_grams(tokens, n):
     """
-    This function simply splits the tokenized text into n-tuples representing n-grams
+    This function simply splits the tokenized text into n-tuples representing n-grams.
+    The * operator splits a list into a series of arguments passed to a function.
+
+    So effectively, this function calls:
+        return zip(tokens[1:], tokens[2:], ..., tokens[n:])
+
+    This offsets the list by 1 for each successive argument, zipping words together in sequences of n
 
     :param tokens:
     :param n:
-    :return:
+    :return a zip object (like a list) of n-tuples representing n-grams of the tokens:
     """
+
     return zip(*[tokens[i:] for i in range(n)])
 
 def gen_word_seq_probabilities(ngrams):
