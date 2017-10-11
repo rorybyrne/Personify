@@ -31,7 +31,8 @@ def tokenize_tweet(tweet):
     :param tweet:
     :return list of tokens:
     """
-    return token_reg.findall(tweet)
+    toks = token_reg.findall(tweet)
+    return [t.lower() for t in toks]
 
 def word_n_grams(tokens, n):
     """
