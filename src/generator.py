@@ -16,13 +16,10 @@ def weighted_choice(dict):
         tmp += dict[k]
         if r < tmp:
             return k
-        return k
 
 probs = utils.get_n_gram_probs("/home/rory/projects/ronald/data/trump-tweets.csv", n=3)
 
 next_word = "we"
-#print("we" in probs)
-#pprint.pprint(dict(probs))
 x = 0
 while x < 30:
         print(next_word + " ", end='')
