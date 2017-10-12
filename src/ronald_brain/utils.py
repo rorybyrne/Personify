@@ -1,7 +1,7 @@
 from collections import defaultdict
 import csv
-import pprint
 import re
+import ronald_brain.constants as constants
 
 emoticon_regex = r"""
     (?:
@@ -22,6 +22,8 @@ tweet_regexes = [
 ]
 
 token_reg = re.compile(r'('+'|'.join(tweet_regexes)+')', re.VERBOSE | re.IGNORECASE)
+
+
 
 def tokenize_tweet(tweet):
     """
@@ -65,7 +67,7 @@ def gen_word_seq_probabilities(ngrams):
     prob_dist = defaultdict(list)
     for g in ngrams:
         # n-gram keys will be stored as comma-separated string values like "first,second"
-        prob_dist[','.join(g[:-1])].append(g[-1])
+        prob_dist[constants.WORD_KEY_DELIMITER.join(g[:-1])].append(g[-1])
 
     for word_seq in prob_dist.keys():
         next_words = prob_dist[word_seq]
