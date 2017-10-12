@@ -1,6 +1,8 @@
 import random
 import sys
-import utils
+
+from ronald_brain import utils
+
 
 class Generator:
     """
@@ -100,7 +102,3 @@ class Generator:
             output.append(next_word)
             print("\n")
         return ' '.join(output)
-
-n = 5
-gen = Generator("/home/rory/projects/ronald/data/trump-tweets.csv", n)
-print(gen.generate(35))
