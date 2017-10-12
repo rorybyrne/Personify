@@ -1,5 +1,6 @@
 import random
 import sys
+import ronald_brain.constants as constants
 
 from ronald_brain import utils
 
@@ -45,7 +46,7 @@ class Generator:
 
     def predict_next(self, ngram):
         # split the ngram by ',' to get the # of words.
-        n = len(ngram.split(','))
+        n = len(ngram.split(constants.WORD_KEY_DELIMITER))
         print("Ngram as key: " + ngram)
         if n == 0:
             # TODO: Exception
@@ -95,7 +96,7 @@ class Generator:
         for x in range(num_words):
             leng = len(output)
             # keys in the probability distribution are comma-separated: "first_word,second_word"
-            prev = ','.join(output[leng - self.word_n + 1:])
+            prev = constants.WORD_KEY_DELIMITER.join(output[leng - self.word_n + 1:])
             print("prev: " + prev)
             next_word = self.predict_next(prev)
             print("next word: " + next_word)
