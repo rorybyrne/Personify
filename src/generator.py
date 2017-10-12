@@ -11,10 +11,16 @@ class Generator:
     The entrypoint to get the next word is currently predict_next()
     """
     def __init__(self, sourcefile, word_ngrams=2):
+        """
+        Here we initialize the Generator by creating all the models necessary
+
+        :param sourcefile:
+        :param word_ngrams:
+        """
         self.sourcefile = sourcefile
         self.word_n = word_ngrams
         # we store a unique n-gram model for each n=2 -> n
-        self.word_ngram_models = [utils.unigram_probs(self.sourcefile)] + self.build_word_models(self.word_n) #TODO: Add unigram building into build_word_models()
+        self.word_ngram_models = self.build_word_models(self.word_n) # TODO: Add unigram building into build_word_models()
 
     def build_word_models(self, n):
         """
@@ -25,33 +31,33 @@ class Generator:
         :param models:
         :return a list of n-gram models:
         """
-        if n == 2:
-            # TODO: Check that models is not empty
-            return [utils.get_n_gram_probs(self.sourcefile, n)]
-        elif n < 2:
-            # TODO: Throw error
-            return []
+        if(n < 1):
+            # TODO: Exception
+            sys.exit(0)
+
+        if n == 1:
+            return [utils.unigram_probs(self.sourcefile)]
         else:
             m = utils.get_n_gram_probs(self.sourcefile, n)
             return self.build_word_models(n-1) + [m]
 
     def predict_next(self, ngram):
-        # split the ngram by ',' to get the # of words. Add 1 to account for the word we are trying to predict
+        # split the ngram by ',' to get the # of words.
         n = len(ngram.split(','))
         print("Ngram as key: " + ngram)
         if n == 0:
+            # TODO: Exception
             sys.exit(0)
         if n == 1:
+            # if we are given a unigram, use unigram model
             return self._weighted_choice(self.word_ngram_models[0])
-        # it's indexed by n-1 because list indices start at 0
-        current_model = self.word_ngram_models[n]
-        print("# of models: " + str(len(self.word_ngram_models)))
-        print("Choosing model #" + str(n+1))
-        if ngram in current_model and len(current_model[ngram]) > 3:
 
-            if len(current_model[ngram]) > 3:
-                choice = self._weighted_choice(current_model[ngram])
-                return choice
+        # otherwise get the appropriate ngram model
+        current_model = self.word_ngram_models[n]
+        # If either of these checks fails, we want to backoff to an n-1gram
+        if ngram in current_model and len(current_model[ngram]) > 3:
+            choice = self._weighted_choice(current_model[ngram])
+            return choice
         else:
             backoff_words = ngram.split(',')[1:]
             print("BackingOff...from " + str(n) + " to " + str(len(backoff_words)))
@@ -69,7 +75,7 @@ class Generator:
             We randomly pick an event, but the randomness depends on the probabilities
 
             :param dict:
-            :return:
+            :return a weighted random choice of key from the dict:
             """
         r = random.uniform(0, 1)  # 1 is the total of our probability distribution
         tmp = 0.0
