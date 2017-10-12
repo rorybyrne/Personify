@@ -47,9 +47,11 @@ class Generator:
         current_model = self.word_ngram_models[n]
         print("# of models: " + str(len(self.word_ngram_models)))
         print("Choosing model #" + str(n+1))
-        if ngram in current_model:
-            choice = self._weighted_choice(current_model[ngram])
-            return choice
+        if ngram in current_model and len(current_model[ngram]) > 3:
+
+            if len(current_model[ngram]) > 3:
+                choice = self._weighted_choice(current_model[ngram])
+                return choice
         else:
             backoff_words = ngram.split(',')[1:]
             print("BackingOff...from " + str(n) + " to " + str(len(backoff_words)))
@@ -81,7 +83,7 @@ class Generator:
         # "i" and "am" are basically the seed words, to begin the sentence with.
         # will need to figure out a way for the system to choose this word intelligently
         # https://github.com/RoryOfByrne/ronald-trump/issues/4
-        output = ["bananas", "we", "fucking", "are"]
+        output = ["we", "are", "going", "to"]
         for x in range(num_words):
             leng = len(output)
             # keys in the probability distribution are comma-separated: "first_word,second_word"
