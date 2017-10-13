@@ -1,8 +1,12 @@
 from ronald_brain import generator
 from ronald_mouth import bot
 from sys import exit
+import csv
+import io
 
-filename = "/home/rory/projects/ronald/data/trump-tweets.csv"
+filename = "donald_tweets.csv"
+
+
 n = 3
 gen = generator.Generator(filename, n)
 
@@ -20,3 +24,6 @@ while send_to_twitter != "y":
 
 bot.send_tweet(tweet)
 print("Sent!")
+
+
+

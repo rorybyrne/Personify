@@ -112,7 +112,7 @@ def process_csv(filename):
     """
     raw_tweets = []
 
-    with open(filename, newline='') as raw:
+    with open(filename, newline='', encoding="utf8") as raw:
         next(raw)
         r = csv.reader(raw, delimiter=',')
         for row in r:
