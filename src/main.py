@@ -3,8 +3,7 @@ from ronald_mouth import bot
 from sys import exit
 
 filename = "/home/rory/projects/ronald/data/trump-tweets.csv"
-n = 3
-gen = generator.Generator(filename, n)
+gen = generator.Generator(filename, 3, 2)
 
 send_to_twitter = ''
 tweet = ''
