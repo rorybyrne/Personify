@@ -29,18 +29,22 @@ class Generator:
 
         # we store a unique n-gram model for each n=2 -> n
         print("Building word n-gram models...")
-        self.word_ngram_models = self.preprocessor.build_ngram_model_list(self.word_n, Ngram.WORD)
+        word_ngram_models = self.preprocessor.build_ngram_model_list(self.word_n, Ngram.WORD)
         print("Word n-gram models built!\n")
 
         print("Building sentence-length n-gram models...")
-        self.sentence_ngram_models = self.preprocessor.build_ngram_model_list(self.sentence_n, Ngram.SENT_LENGTH)
+        sentence_ngram_models = self.preprocessor.build_ngram_model_list(self.sentence_n, Ngram.SENT_LENGTH)
         print("Sentence-length n-gram models built!\n")
 
         print("Building model for first words")
-        self.first_word_models = self.preprocessor.build_ngram_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
+        first_word_models = self.preprocessor.build_ngram_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
         print("First words n-gram models built!")
 
-    def predict_next(self, ngram):
+        self.models = {'word': word_ngram_models,
+                       'sent_len': sentence_ngram_models,
+                       'first_word': first_word_models}
+
+    def predict_next(self, ngram, model):
         """
         Given an ngram, it consults the models to choose the next word.
         This is where the logic for using the models will exist. Right now it's a weighted random choice
@@ -54,7 +58,7 @@ class Generator:
 
         # if we are given a unigram, use unigram model
         if ngram == '': # use unigram model
-            model = self.word_ngram_models[0]
+            model = self.models[model][0]
             foo = self.weighted_choice(model)
             print(foo)
             return foo
@@ -63,9 +67,10 @@ class Generator:
 
         # otherwise get the appropriate ngram model
         if ngram == constants.START_TOKEN:
-            current_model = self.first_word_models[self.first_words_n-1]
+            # We choose the model differently for the First_Word models
+            current_model = self.models[model][self.first_words_n-1]
         else:
-            current_model = self.word_ngram_models[n]
+            current_model = self.models[model][n]
 
         # If either of these checks fails, we want to backoff to an n-1gram
         if ngram in current_model and len(current_model[ngram]) > 3:
@@ -76,7 +81,7 @@ class Generator:
             print("BackingOff...from " + str(n) + " to " + str(len(backoff_words)))
             print("Backoff words: " + ' '.join(backoff_words))
             backoff_ngram = ' '.join(backoff_words)
-            return self.predict_next(backoff_ngram)
+            return self.predict_next(backoff_ngram, model)
 
 
     def weighted_choice(self, dict):
@@ -98,17 +103,57 @@ class Generator:
             if r < tmp:
                 return k
 
-    def generate(self, num_words):
-        # The way of choosing the first words is a little hacky
-        output = self.predict_next(constants.START_TOKEN).split(constants.KEY_DELIMITER)
-        for x in range(num_words):
-            leng = len(output)
+    def generate_sentence(self, length, seed_words=None):
+        '''
+        Generates a sentence of len `length`, with optional seed words
+
+        :param length:
+        :param seed_words:
+        :return:
+        '''
+
+        if(seed_words):
+            first_word = self.predict_next(constants.KEY_DELIMITER.join(seed_words), 'word')
+        else:
+            # First word prediction looks like "w1 w1 ... wn", so we split by space
+            # Splitting by X returns the same string if there's no X
+            first_word = self.predict_next(constants.START_TOKEN, 'first_word').split(constants.KEY_DELIMITER)
+
+        output = first_word # first_word is a list [<WORD>] because of the str.split() above
+
+        while(len(output) < length):
+            count = len(output)
+
             # keys in the probability distribution are comma-separated: "first_word,second_word"
-            prev = constants.KEY_DELIMITER.join(output[leng - self.word_n + 1:])
-            print("prev: " + prev)
-            next_word = self.predict_next(prev)
-            print("next word: " + next_word)
+            if(count < self.word_n):
+                prev = constants.KEY_DELIMITER.join(output)
+            else:
+                prev = constants.KEY_DELIMITER.join(output[-self.word_n + 1:])
+
+            next_word = self.predict_next(prev, 'word')
             output.append(next_word)
-            print("\n")
-        raw_output = ' '.join(output)
+
+        return output
+
+
+
+    def generate(self, char_count):
+        # The way of choosing the first words is a little hacky
+        next_len = int(self.predict_next('', 'sent_len')) # Predictions are always strings. So we convert to int
+        output = []
+
+        char_total = 0
+
+        while(True):
+            if(char_total > char_count):
+                break
+            sentence = self.generate_sentence(next_len)
+            sent_string = ' '.join(sentence)
+            output.append(sent_string)
+
+            next_len = int(self.predict_next(str(len(output[-1])), 'sent_len')) # Predict the next sent_length
+
+            char_total += len(sent_string)
+
+        raw_output = ' '.join(output[:-1]) # We drop the last sentence because it put us over the limit
         return postprocessor.run(raw_output)

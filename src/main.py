@@ -12,7 +12,7 @@ while send_to_twitter != "y":
     if send_to_twitter == "q":
         exit(0)
 
-    tweet = gen.generate(20)
+    tweet = gen.generate(140)
 
     print(tweet)
     send_to_twitter = input("Post to Twitter? y/n\nTo quit, type q\n")
