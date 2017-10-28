@@ -1,5 +1,5 @@
 import random
-import sys
+import ronald_brain.postprocessor as postprocessor
 import ronald_brain.constants as constants
 
 from ronald_brain.preprocessor import Ngram
@@ -110,4 +110,5 @@ class Generator:
             print("next word: " + next_word)
             output.append(next_word)
             print("\n")
-        return ' '.join(output)
+        raw_output = ' '.join(output)
+        return postprocessor.fix_punctuation(raw_output)
