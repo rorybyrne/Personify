@@ -111,4 +111,4 @@ class Generator:
             output.append(next_word)
             print("\n")
         raw_output = ' '.join(output)
-        return postprocessor.fix_punctuation(raw_output)
+        return postprocessor.run(raw_output)
