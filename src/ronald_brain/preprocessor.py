@@ -10,6 +10,7 @@ class Ngram(Enum):
     WORD = 1
     SENT_LENGTH = 2
     POS_TAG = 3
+    FIRST_WORD = 4
 
 class Preprocessor:
     """
@@ -48,11 +49,38 @@ class Preprocessor:
 
         return [token for full_tweet in tokenized_tweets for token in full_tweet]
 
+    def tokenize_tweet(self, tweet):
+        """
+            Turn the tweet into a list of individual tokens. We will maintain hashtags, urls, etc., and not split them up
+            Maybe add named-entity recognition?
+
+            :param tweet:
+            :return list of tokens:
+            """
+        toks = self.token_reg.findall(tweet)
+        return [t.lower() for t in toks]
+
     def split_into_sentences(self, raw_data):
         sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-        sentences = [sentence.split() for t in raw_data for sentence in sentence_tokenizer.tokenize(t)]
+        split_sentences = [sentence_tokenizer.tokenize(sentence) for sentence in raw_data]
 
-        return [len(s) for s in sentences]
+        return split_sentences
+
+    def get_first_words(self, raw_data, n):
+        '''
+        Gets the first n words of each sentence, and puts '<START>' at the beginning.
+        Returns something like:
+                [['<START>', "we must"], ['<START>', "Jeb has"], ...]
+
+        :param raw_data:
+        :param n:
+        :return:
+        '''
+        tweets = self.split_into_sentences(raw_data)
+        tokenized_sentences = [self.tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
+        first_words = [tuple([constants.START_TOKEN, ' '.join(s[:n])]) for s in tokenized_sentences]
+
+        return first_words
 
     def build_n_grams(self, items, n):
         """
@@ -66,7 +94,7 @@ class Preprocessor:
 
             :param items:
             :param n:
-            :return a zip object (like a list) of n-tuples representing n-grams of the tokens:
+            :return a list of n-tuples representing n-grams of the tokens:
             """
 
         if n == 1:
@@ -86,17 +114,6 @@ class Preprocessor:
         :return:
         """
         return tuple(str(s) for s in tup)
-
-    def tokenize_tweet(self, tweet):
-        """
-            Turn the tweet into a list of individual tokens. We will maintain hashtags, urls, etc., and not split them up
-            Maybe add named-entity recognition?
-
-            :param tweet:
-            :return list of tokens:
-            """
-        toks = self.token_reg.findall(tweet)
-        return [t.lower() for t in toks]
 
     def load_csv(self, filename):
         """
@@ -139,7 +156,7 @@ class Preprocessor:
                 else:
                     prob_dist[key] = 1
 
-            unq_items = [str(i) for i in set(ngrams)]
+            unq_items = [str(i[0]) for i in set(ngrams)]
 
             for k in unq_items:
                 prob_dist[k] = prob_dist[k] / num_words
@@ -187,12 +204,23 @@ class Preprocessor:
             return prob_dist
         elif type == Ngram.SENT_LENGTH:
             print("Building SENT-LEN %s-grams..." % (n))
-            ngrams = self.build_n_grams(self.split_into_sentences(self.raw_tweets), n)
+            sentence_tweets = self.split_into_sentences(self.raw_tweets)
+            split_sentences = [sentence.split() for sentences in sentence_tweets for sentence in sentences]
+            ngrams = self.build_n_grams([len(s) for s in split_sentences], n)
             print("SENT-LEN %s-grams built!" % (n))
 
             print("Building SENT-LEN %s-gram prob-dist..." % (n))
             prob_dist = self.build_ngram_probability_model(ngrams, n)
             print("%s-gram SENT-LEN prob-dist built" % (n))
+            return prob_dist
+        elif type == Ngram.FIRST_WORD:
+            print("Building FIRST_WORD %s-grams..." % (n))
+            first_words_ngrams = self.get_first_words(self.raw_tweets, n)
+            print("FIRST_WORD %s-grams built!" % (n))
+
+            print("Building FIRST_WORD %s-gram prob-dist..." % (n))
+            prob_dist = self.build_ngram_probability_model(first_words_ngrams, 2) # get_first_words() always gives a 2-tuple
+            print("%s-gram FIRST_WORD prob-dist built!" % (n))
             return prob_dist
 
     def build_ngram_model_list(self, n, type):

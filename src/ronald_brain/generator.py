@@ -25,6 +25,7 @@ class Generator:
         self.preprocessor = preprocessor.Preprocessor(sourcefile)
         self.word_n = word_ngrams
         self.sentence_n = sent_length_ngrams
+        self.first_words_n = constants.FIRST_WORDS_N
 
         # we store a unique n-gram model for each n=2 -> n
         print("Building word n-gram models...")
@@ -34,6 +35,10 @@ class Generator:
         print("Building sentence-length n-gram models...")
         self.sentence_ngram_models = self.preprocessor.build_ngram_model_list(self.sentence_n, Ngram.SENT_LENGTH)
         print("Sentence-length n-gram models built!\n")
+
+        print("Building model for first words")
+        self.first_word_models = self.preprocessor.build_ngram_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
+        print("First words n-gram models built!")
 
     def predict_next(self, ngram):
         """
@@ -46,20 +51,25 @@ class Generator:
         :return:
         """
         print("Ngram as key: " + ngram)
+
         # if we are given a unigram, use unigram model
         if ngram == '': # use unigram model
             model = self.word_ngram_models[0]
-            foo = self._weighted_choice(model)
+            foo = self.weighted_choice(model)
             print(foo)
             return foo
 
         n = len(ngram.split(constants.KEY_DELIMITER))
 
         # otherwise get the appropriate ngram model
-        current_model = self.word_ngram_models[n]
+        if ngram == constants.START_TOKEN:
+            current_model = self.first_word_models[self.first_words_n-1]
+        else:
+            current_model = self.word_ngram_models[n]
+
         # If either of these checks fails, we want to backoff to an n-1gram
         if ngram in current_model and len(current_model[ngram]) > 3:
-            choice = self._weighted_choice(current_model[ngram])
+            choice = self.weighted_choice(current_model[ngram])
             return choice
         else:
             backoff_words = ngram.split(' ')[1:]
@@ -69,7 +79,7 @@ class Generator:
             return self.predict_next(backoff_ngram)
 
 
-    def _weighted_choice(self, dict):
+    def weighted_choice(self, dict):
         """
             dict is of the form { event : probability,
                                     event : probability,
@@ -89,10 +99,8 @@ class Generator:
                 return k
 
     def generate(self, num_words):
-        # "we" and "are" are basically the seed words, to begin the sentence with.
-        # will need to figure out a way for the system to choose this word intelligently
-        # https://github.com/RoryOfByrne/ronald-trump/issues/4
-        output = ["we", "are"] #, "going", "to"]
+        # The way of choosing the first words is a little hacky
+        output = self.predict_next(constants.START_TOKEN).split(constants.KEY_DELIMITER)
         for x in range(num_words):
             leng = len(output)
             # keys in the probability distribution are comma-separated: "first_word,second_word"
