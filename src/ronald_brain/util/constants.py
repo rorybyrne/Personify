@@ -6,6 +6,8 @@ FIRST_WORDS_N = 1
 FRONT_PUNCTUATION = [',', '.', '?', '!', ':', ';']
 USELESS_PUNCTUATION = ['(', ')', '"', '\'', '^', '@', '-', '_', '*', '&', '$', '+', '=']
 
+CSV_FILE_LOCATION = 'data/trump-tweets.csv'
+
 EMOTICON_REGEX= r"""
             (?:
                 [:=;]
