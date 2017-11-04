@@ -29,15 +29,15 @@ class Generator:
 
         # we store a unique n-gram model for each n=2 -> n
         print("Building word n-gram models...")
-        word_ngram_models = self.preprocessor.build_ngram_model_list(self.word_n, Ngram.WORD)
+        word_ngram_models = self.preprocessor.build_model_list(self.word_n, Ngram.WORD)
         print("Word n-gram models built!\n")
 
         print("Building sentence-length n-gram models...")
-        sentence_ngram_models = self.preprocessor.build_ngram_model_list(self.sentence_n, Ngram.SENT_LENGTH)
+        sentence_ngram_models = self.preprocessor.build_model_list(self.sentence_n, Ngram.SENT_LENGTH)
         print("Sentence-length n-gram models built!\n")
 
         print("Building model for first words")
-        first_word_models = self.preprocessor.build_ngram_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
+        first_word_models = self.preprocessor.build_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
         print("First words n-gram models built!")
 
         self.models = {'word': word_ngram_models,
@@ -59,22 +59,16 @@ class Generator:
         # if we are given a unigram, use unigram model
         if ngram == '': # use unigram model
             model = self.models[model][0]
-            foo = self.weighted_choice(model)
-            print(foo)
-            return foo
+            return self.weighted_choice(model.chain)
+
 
         n = len(ngram.split(constants.KEY_DELIMITER))
 
-        # otherwise get the appropriate ngram model
-        if ngram == constants.START_TOKEN:
-            # We choose the model differently for the First_Word models
-            current_model = self.models[model][self.first_words_n-1]
-        else:
-            current_model = self.models[model][n]
+        current_model = self.models[model][n]
 
         # If either of these checks fails, we want to backoff to an n-1gram
-        if ngram in current_model and len(current_model[ngram]) > 3:
-            choice = self.weighted_choice(current_model[ngram])
+        if ngram in current_model and len(current_model.for_word(ngram)) > 3:
+            choice = self.weighted_choice(current_model.for_word(ngram))
             return choice
         else:
             backoff_words = ngram.split(' ')[1:]
@@ -117,7 +111,7 @@ class Generator:
         else:
             # First word prediction looks like "w1 w1 ... wn", so we split by space
             # Splitting by X returns the same string if there's no X
-            first_word = self.predict_next(constants.START_TOKEN, 'first_word').split(constants.KEY_DELIMITER)
+            first_word = self.predict_next('', 'first_word').split(constants.KEY_DELIMITER)
 
         output = first_word # first_word is a list [<WORD>] because of the str.split() above
 
@@ -131,6 +125,7 @@ class Generator:
                 prev = constants.KEY_DELIMITER.join(output[-self.word_n + 1:])
 
             next_word = self.predict_next(prev, 'word')
+            print("\n")
             output.append(next_word)
 
         return output
