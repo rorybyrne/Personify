@@ -1,11 +1,12 @@
-from collections import defaultdict
 import csv
-from enum import Enum
-import nltk.data
 import re
-import ronald_brain.constants as constants
 import sys
-from .markov_chain import MarkovChain
+from enum import Enum
+
+import nltk.data
+
+from ronald_brain.models.markov_chain import MarkovChain
+
 
 class Ngram(Enum):
     WORD = 1

@@ -1,9 +1,9 @@
 import random
-import ronald_brain.postprocessor as postprocessor
-import ronald_brain.constants as constants
 
-from ronald_brain.preprocessor import Ngram
-from ronald_brain import preprocessor
+import ronald_brain.util.constants as constants
+import ronald_brain.util.postprocessor as postprocessor
+from ronald_brain.util import preprocessor
+from ronald_brain.util.preprocessor import Ngram
 
 
 class Generator:
