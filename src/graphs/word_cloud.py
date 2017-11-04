@@ -36,8 +36,9 @@ class TweetCloud(WordCloud):
 
 def create_word_cloud(file_name):
     pp = Preprocessor(file_name)
-    raw_data = pp.tweets_as_string()
-    wc = TweetCloud(width=800, height=400).generate(raw_data)
+    words = pp.words_only()
+
+    wc = TweetCloud(width=800, height=400).generate(words)
 
     return wc
 

@@ -5,6 +5,7 @@ FIRST_WORDS_N = 1
 
 FRONT_PUNCTUATION = [',', '.', '?', '!', ':', ';']
 USELESS_PUNCTUATION = ['(', ')', '"', '\'', '^', '@', '-', '_', '*', '&', '$', '+', '=']
+NON_ENGLISH_WORDS = ['rt', 'amp']
 
 CSV_FILE_LOCATION = 'data/trump-tweets.csv'
 

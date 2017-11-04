@@ -4,9 +4,11 @@ import sys
 from enum import Enum
 
 import nltk.data
+from nltk.corpus import stopwords
+import enchant
 
 from ronald_brain.models.markov_chain import MarkovChain
-from .constants import TWEET_REGEXES
+from .constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION, NON_ENGLISH_WORDS
 
 
 class Ngram(Enum):
@@ -35,8 +37,6 @@ class Preprocessor:
         self.tokenized_total = self.tokenize_raw_data(self.raw_tweets)
 
 
-
-
     ###############################
     ####     LOADING DATA      ####
     ###############################
@@ -59,8 +59,6 @@ class Preprocessor:
 
     def tweets_as_string(self):
         return ''.join(self.raw_tweets)
-
-
 
 
     ###############################
@@ -100,6 +98,16 @@ class Preprocessor:
         split_sentences = [sentence_tokenizer.tokenize(tweet) for tweet in raw_data]
 
         return split_sentences
+
+    def words_only(self):
+        stop = set(stopwords.words('english') + FRONT_PUNCTUATION + USELESS_PUNCTUATION + NON_ENGLISH_WORDS)
+
+        words = [w for w in self.tokenized_total if not w in stop]
+        d = enchant.Dict("en_UK")
+
+        words = [w for w in words if d.check(w)]
+
+        return words
 
 
 
