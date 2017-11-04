@@ -1,0 +1,6 @@
+*pycache*
+venv/
+*.csv
+
+# Credentials
+*twitter_credentials.py
