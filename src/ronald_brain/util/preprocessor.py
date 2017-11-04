@@ -6,6 +6,7 @@ from enum import Enum
 import nltk.data
 
 from ronald_brain.models.markov_chain import MarkovChain
+from .constants import TWEET_REGEXES
 
 
 class Ngram(Enum):
@@ -26,23 +27,7 @@ class Preprocessor:
         TODO: a regex set for tokenizing Trump speeches, or other data sources?
         :param filename:
         """
-        self._emoticon_regex = r"""
-            (?:
-                [:=;]
-                [oO\-]?
-                [D\)\]\(\]/\\OpP]
-            )"""  # eyes, nose, mouth (in that order)
-
-        self._tweet_regexes = [
-            self._emoticon_regex,
-            r'(?:@[\w_]+)',  # @ tag
-            r"(?:\#+[\w_]+[\w\'_\-]*[\w_]+)",  # hashtag
-            r'http[s]?://(?:[a-z]|[0-9]|[$-_@.&amp;+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+',  # url
-            r'(?:(?:\d+,?)+(?:\.?\d+)?)',  # numbers
-            r"(?:[a-z][a-z'\-_]+[a-z])",  # words with - and '
-            r'(?:[\w_]+)',  # other words
-            r'(?:\S)'  # anything else
-        ]
+        self._tweet_regexes = TWEET_REGEXES
         self.token_reg = re.compile(r'(' + '|'.join(self._tweet_regexes) + ')', re.VERBOSE | re.IGNORECASE)
 
         ### Keep the raw_tweets to be re-used as needed
@@ -71,6 +56,9 @@ class Preprocessor:
                 raw_tweets.append(row[2])
 
         return raw_tweets
+
+    def tweets_as_string(self):
+        return ''.join(self.raw_tweets)
 
 
 

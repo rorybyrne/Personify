@@ -1,7 +1,5 @@
 import nltk.data
-
-FRONT_PUNCTUATION = [',', '.', '?', '!', ':', ';']
-USELESS_PUNCTUATION = ['(', ')', '"', '\'', '^', '@', '-']
+from .constants import FRONT_PUNCTUATION, USELESS_PUNCTUATION
 
 def run(text):
     text = remove_useless_punctuation(text)
