@@ -14,7 +14,7 @@ while send_to_twitter != "y":
 
     tweet = gen.generate(140)
 
-    print(tweet)
+    print("\n%s" % tweet)
     send_to_twitter = input("Post to Twitter? y/n\nTo quit, type q\n")
 
 bot.send_tweet(tweet)
