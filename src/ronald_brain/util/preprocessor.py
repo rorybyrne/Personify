@@ -2,6 +2,7 @@ import csv
 import re
 import sys
 from enum import Enum
+from .twitter import tweets
 
 import nltk.data
 
@@ -20,7 +21,7 @@ class Preprocessor:
     It will read the raw data, convert it to the required formats, transform it into the metrics we will use
       and spit it out when asked
     """
-    def __init__(self, filename):
+    def __init__(self, user):
         """
         Create the regex's required to tokenize the tweets
         TODO: a regex set for tokenizing Trump speeches, or other data sources?
@@ -46,7 +47,8 @@ class Preprocessor:
         self.token_reg = re.compile(r'(' + '|'.join(self._tweet_regexes) + ')', re.VERBOSE | re.IGNORECASE)
 
         ### Keep the raw_tweets to be re-used as needed
-        self.raw_tweets = self.load_csv(filename)
+        self.raw_tweets = tweets.get_tweets(user)
+        self.raw_tweets = [t[2] for t in self.raw_tweets]
         self.tokenized_total = self.tokenize_raw_data(self.raw_tweets)
 
 

@@ -14,7 +14,7 @@ class Generator:
     All models are created when the class is initialized with a filename.
     The entrypoint to get the next word is predict_next()
     """
-    def __init__(self, sourcefile, word_ngrams=2, sent_length_ngrams=2):
+    def __init__(self, twitter_user=None, sourcefile=None, word_ngrams=2, sent_length_ngrams=2):
         """
         Here we initialize the Generator by creating all the models necessary
 
@@ -22,7 +22,8 @@ class Generator:
         :param word_ngrams:
         """
         self.sourcefile = sourcefile
-        self.preprocessor = preprocessor.Preprocessor(sourcefile)
+        self.twitter_user = twitter_user
+        self.preprocessor = preprocessor.Preprocessor(self.twitter_user)
         self.word_n = word_ngrams
         self.sentence_n = sent_length_ngrams
         self.first_words_n = constants.FIRST_WORDS_N
@@ -72,8 +73,6 @@ class Generator:
             return choice
         else:
             backoff_words = ngram.split(' ')[1:]
-            print("BackingOff...from " + str(n) + " to " + str(len(backoff_words)))
-            print("Backoff words: " + ' '.join(backoff_words))
             backoff_ngram = ' '.join(backoff_words)
             return self.predict_next(backoff_ngram, model)
 
