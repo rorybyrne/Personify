@@ -5,8 +5,11 @@ from enum import Enum
 from .twitter import tweets
 
 import nltk.data
+from nltk.corpus import stopwords
+import enchant
 
 from ronald_brain.models.markov_chain import MarkovChain
+from .constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION, NON_ENGLISH_WORDS
 
 
 class Ngram(Enum):
@@ -27,31 +30,13 @@ class Preprocessor:
         TODO: a regex set for tokenizing Trump speeches, or other data sources?
         :param filename:
         """
-        self._emoticon_regex = r"""
-            (?:
-                [:=;]
-                [oO\-]?
-                [D\)\]\(\]/\\OpP]
-            )"""  # eyes, nose, mouth (in that order)
-
-        self._tweet_regexes = [
-            self._emoticon_regex,
-            r'(?:@[\w_]+)',  # @ tag
-            r"(?:\#+[\w_]+[\w\'_\-]*[\w_]+)",  # hashtag
-            r'http[s]?://(?:[a-z]|[0-9]|[$-_@.&amp;+]|[!*\(\),]|(?:%[0-9a-f][0-9a-f]))+',  # url
-            r'(?:(?:\d+,?)+(?:\.?\d+)?)',  # numbers
-            r"(?:[a-z][a-z'\-_]+[a-z])",  # words with - and '
-            r'(?:[\w_]+)',  # other words
-            r'(?:\S)'  # anything else
-        ]
+        self._tweet_regexes = TWEET_REGEXES
         self.token_reg = re.compile(r'(' + '|'.join(self._tweet_regexes) + ')', re.VERBOSE | re.IGNORECASE)
 
         ### Keep the raw_tweets to be re-used as needed
         self.raw_tweets = tweets.get_tweets(user)
         self.raw_tweets = [t[2] for t in self.raw_tweets]
         self.tokenized_total = self.tokenize_raw_data(self.raw_tweets)
-
-
 
 
     ###############################
@@ -74,7 +59,8 @@ class Preprocessor:
 
         return raw_tweets
 
-
+    def tweets_as_string(self):
+        return ''.join(self.raw_tweets)
 
 
     ###############################
@@ -114,6 +100,16 @@ class Preprocessor:
         split_sentences = [sentence_tokenizer.tokenize(tweet) for tweet in raw_data]
 
         return split_sentences
+
+    def words_only(self):
+        stop = set(stopwords.words('english') + FRONT_PUNCTUATION + USELESS_PUNCTUATION + NON_ENGLISH_WORDS)
+
+        words = [w for w in self.tokenized_total if not w in stop]
+        d = enchant.Dict("en_UK")
+
+        words = [w for w in words if d.check(w)]
+
+        return words
 
 
 
