@@ -4,6 +4,7 @@ import ronald_brain.util.constants as constants
 import ronald_brain.util.postprocessor as postprocessor
 from ronald_brain.util import preprocessor
 from ronald_brain.util.preprocessor import Ngram
+from .util.ginger import ginger
 
 
 class Generator:
@@ -14,14 +15,13 @@ class Generator:
     All models are created when the class is initialized with a filename.
     The entrypoint to get the next word is predict_next()
     """
-    def __init__(self, twitter_user=None, sourcefile=None, word_ngrams=2, sent_length_ngrams=2):
+    def __init__(self, twitter_user=None, word_ngrams=2, sent_length_ngrams=2):
         """
         Here we initialize the Generator by creating all the models necessary
 
-        :param sourcefile:
+        :param twitter_user:
         :param word_ngrams:
         """
-        self.sourcefile = sourcefile
         self.twitter_user = twitter_user
         self.preprocessor = preprocessor.Preprocessor(self.twitter_user)
         self.word_n = word_ngrams
@@ -55,7 +55,7 @@ class Generator:
         :param ngram:
         :return:
         """
-        print("Ngram as key: " + ngram)
+        # print("Ngram as key: " + ngram)
 
         # if we are given a unigram, use unigram model
         if ngram == '': # use unigram model
@@ -104,28 +104,37 @@ class Generator:
         :param seed_words:
         :return:
         '''
+        result = "bad"
+        output = ["a", "test", "sentence"]
 
-        if(seed_words):
-            first_word = self.predict_next(constants.KEY_DELIMITER.join(seed_words), 'word')
-        else:
-            # First word prediction looks like "w1 w1 ... wn", so we split by space
-            # Splitting by X returns the same string if there's no X
-            first_word = self.predict_next('', 'first_word').split(constants.KEY_DELIMITER)
-
-        output = first_word # first_word is a list [<WORD>] because of the str.split() above
-
-        while(len(output) < length):
-            count = len(output)
-
-            # keys in the probability distribution are comma-separated: "first_word,second_word"
-            if(count < self.word_n):
-                prev = constants.KEY_DELIMITER.join(output)
+        while(result):
+            if(seed_words):
+                first_word = self.predict_next(constants.KEY_DELIMITER.join(seed_words), 'word')
             else:
-                prev = constants.KEY_DELIMITER.join(output[-self.word_n + 1:])
+                # First word prediction looks like "w1 w1 ... wn", so we split by space
+                # Splitting by X returns the same string if there's no X
+                first_word = self.predict_next('', 'first_word').split(constants.KEY_DELIMITER)
 
-            next_word = self.predict_next(prev, 'word')
-            print("\n")
-            output.append(next_word)
+            output = first_word # first_word is a list [<WORD>] because of the str.split() above
+
+            while(len(output) < length):
+                count = len(output)
+
+                # keys in the probability distribution are comma-separated: "first_word,second_word"
+                if(count < self.word_n):
+                    prev = constants.KEY_DELIMITER.join(output)
+                else:
+                    prev = constants.KEY_DELIMITER.join(output[-self.word_n + 1:])
+
+                next_word = self.predict_next(prev, 'word')
+                # print("\n")
+                output.append(next_word)
+
+            sent = ' '.join(output)
+            candidate = postprocessor.run(sent)
+            # print("Candidate:\n%s\n" % candidate)
+
+            result = ginger.get_ginger_result(candidate)["LightGingerTheTextResult"]
 
         return output
 

@@ -1,8 +1,10 @@
 import os.path
 import csv
+import numpy as np
 
 import tweepy
 from conf import twitter_credentials
+from ronald_brain.util.constants import CSV_FILE_LOCATION
 
 auth = tweepy.OAuthHandler(twitter_credentials.CONSUMER_KEY, twitter_credentials.CONSUMER_SECRET)
 auth.set_access_token(twitter_credentials.ACCESS_KEY, twitter_credentials.ACCESS_SECRET)
@@ -26,7 +28,7 @@ def load_csv(filename):
     return raw_tweets
 
 def get_tweets(user):
-    file = "/home/rory/projects/ronald/data/%s_tweets.txt" % user
+    file = ''.join((CSV_FILE_LOCATION, "%s_tweets.txt" % user))
     if(os.path.exists(file)):
         return load_csv(file)
 
@@ -60,8 +62,8 @@ def get_tweets(user):
     outtweets = [[tweet.id_str, tweet.created_at, tweet.text] for tweet in alltweets]
     print("\n%s total tweets" % len(outtweets))
 
-    with open(file, 'w') as f:
-        writer = csv.writer(f)
+    with open(file, 'w', newline='') as f:
+        writer = csv.writer(f, delimiter=',')
         writer.writerow(["id", "created_at", "text"])
         writer.writerows(outtweets)
 

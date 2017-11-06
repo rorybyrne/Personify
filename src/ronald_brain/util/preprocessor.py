@@ -1,15 +1,11 @@
-import csv
 import re
 import sys
 from enum import Enum
 from .twitter import tweets
 
-import nltk.data
-from nltk.corpus import stopwords
-import enchant
+from .tokenize import *
 
 from ronald_brain.models.markov_chain import MarkovChain
-from .constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION, NON_ENGLISH_WORDS
 
 
 class Ngram(Enum):
@@ -26,92 +22,24 @@ class Preprocessor:
     """
     def __init__(self, user):
         """
-        Create the regex's required to tokenize the tweets
-        TODO: a regex set for tokenizing Trump speeches, or other data sources?
-        :param filename:
+        Preprocesses and stores data for a twitter user
+        :param user:
         """
-        self._tweet_regexes = TWEET_REGEXES
-        self.token_reg = re.compile(r'(' + '|'.join(self._tweet_regexes) + ')', re.VERBOSE | re.IGNORECASE)
 
         ### Keep the raw_tweets to be re-used as needed
         self.raw_tweets = tweets.get_tweets(user)
-        self.raw_tweets = [t[2] for t in self.raw_tweets]
-        self.tokenized_total = self.tokenize_raw_data(self.raw_tweets)
 
+        self.tokenized_tweets = tokenize_raw_tweets(self.raw_tweets)
+        self.tokenized_flat = get_flat_tokens(self.tokenized_tweets)
 
-    ###############################
-    ####     LOADING DATA      ####
-    ###############################
+        self.words_only_flat = words_only(self.tokenized_flat)
 
-    def load_csv(self, filename):
-        """
-        Select the column of the CSVs containing the tweet text and return them all as a list
-        :param filename:
-        :return a list of strings, where each string is a raw tweet:
-        """
-        raw_tweets = []
+        # Set this based on what kind of output you want
+        # Should be a flat list of tokens
+        self.tokens_to_use = self.words_only_flat
 
-        with open(filename, newline='') as raw:
-            next(raw)
-            r = csv.reader(raw, delimiter=',')
-            for row in r:
-                raw_tweets.append(row[2])
-
-        return raw_tweets
-
-    def tweets_as_string(self):
+    def all_tweets_as_string(self):
         return ''.join(self.raw_tweets)
-
-
-    ###############################
-    ####    TOKENIZING DATA    ####
-    ###############################
-
-    def tokenize_raw_data(self, raw_data):
-        '''
-        Turn the raw data into a single list of tokens
-
-        :param raw_data:
-        :return:
-        '''
-        tokenized_tweets = [self.tokenize_tweet(t) for t in self.raw_tweets]
-
-        return [token for full_tweet in tokenized_tweets for token in full_tweet]
-
-    def tokenize_tweet(self, tweet):
-        """
-        Turn the tweet into a list of individual tokens. We will maintain hashtags, urls, etc., and not split them up
-        Maybe add named-entity recognition?
-
-        :param tweet:
-        :return list of tokens:
-        """
-        toks = self.token_reg.findall(tweet)
-        return [t.lower() for t in toks]
-
-    def split_into_sentences(self, raw_data):
-        '''
-        The data is a list of tweet strings. Each of these tweets will be split into sentences
-
-        :param raw_data:
-        :return a list of lists, each outer list is a tweet and each inner list is a sentence in the tweet:
-        '''
-        sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-        split_sentences = [sentence_tokenizer.tokenize(tweet) for tweet in raw_data]
-
-        return split_sentences
-
-    def words_only(self):
-        stop = set(stopwords.words('english') + FRONT_PUNCTUATION + USELESS_PUNCTUATION + NON_ENGLISH_WORDS)
-
-        words = [w for w in self.tokenized_total if not w in stop]
-        d = enchant.Dict("en_UK")
-
-        words = [w for w in words if d.check(w)]
-
-        return words
-
-
 
 
         ###############################
@@ -130,8 +58,8 @@ class Preprocessor:
         :param n:
         :return list of strings, where each string contains `n` words:
         '''
-        tweets = self.split_into_sentences(raw_data)
-        tokenized_sentences = [self.tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
+        tweets = split_into_sentences(raw_data)
+        tokenized_sentences = [tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
         first_words = [tuple(s[:n]) for s in tokenized_sentences]
 
         return first_words
@@ -184,13 +112,13 @@ class Preprocessor:
         :return the probability distribution for n-grams of type `type` and order `n`:
         """
         if type == Ngram.WORD:
-            ngrams = self.build_n_grams(self.tokenized_total, n)
+            ngrams = self.build_n_grams(self.tokens_to_use, n)
 
             markov_chain = MarkovChain(ngrams, n)
 
             return markov_chain
         elif type == Ngram.SENT_LENGTH:
-            sentence_tweets = self.split_into_sentences(self.raw_tweets)
+            sentence_tweets = split_into_sentences(self.raw_tweets)
             split_sentences = [sentence.split() for sentences in sentence_tweets for sentence in sentences]
             ngrams = self.build_n_grams([len(s) for s in split_sentences], n)
 
