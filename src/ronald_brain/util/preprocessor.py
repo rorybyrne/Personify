@@ -27,7 +27,7 @@ class Preprocessor:
         """
 
         ### Keep the raw_tweets to be re-used as needed
-        self.raw_tweets = tweets.get_tweets(user)
+        self.raw_tweets = [t[2] for t in tweets.get_tweets(user)]
 
         self.tokenized_tweets = tokenize_raw_tweets(self.raw_tweets)
         self.tokenized_flat = get_flat_tokens(self.tokenized_tweets)
@@ -59,7 +59,10 @@ class Preprocessor:
         :return list of strings, where each string contains `n` words:
         '''
         tweets = split_into_sentences(raw_data)
-        tokenized_sentences = [tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
+        foo = [tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
+        tokenized_sentences = [words_only(t) for t in foo]
+        # print(tokenized_sentences[:10])
+        tokenized_sentences = [s for s in tokenized_sentences if len(s) > 0]
         first_words = [tuple(s[:n]) for s in tokenized_sentences]
 
         return first_words

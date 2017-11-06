@@ -7,6 +7,12 @@ def run(text):
     text = capitalize_sentences(text)
     return text
 
+def run_pre_ginger(text):
+    text = remove_useless_punctuation_and_handles(text)
+    text = fix_punctuation(text)
+    text = capitalize_sentences(text)
+    return text
+
 def fix_punctuation(text):
     output = text
     for p in FRONT_PUNCTUATION:
@@ -16,6 +22,13 @@ def fix_punctuation(text):
 
 def remove_useless_punctuation(text):
     output = text
+    for p in USELESS_PUNCTUATION:
+        output = output.replace(p, '')
+    return remove_double_space(output)
+
+def remove_useless_punctuation_and_handles(text):
+    output = text
+    output = output.replace(r'\@*\w*\d+', '')
     for p in USELESS_PUNCTUATION:
         output = output.replace(p, '')
     return remove_double_space(output)

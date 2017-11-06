@@ -131,7 +131,7 @@ class Generator:
                 output.append(next_word)
 
             sent = ' '.join(output)
-            candidate = postprocessor.run(sent)
+            candidate = postprocessor.run_pre_ginger(sent)
             # print("Candidate:\n%s\n" % candidate)
 
             result = ginger.get_ginger_result(candidate)["LightGingerTheTextResult"]

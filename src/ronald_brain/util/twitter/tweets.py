@@ -3,12 +3,9 @@ import csv
 import numpy as np
 
 import tweepy
-from conf import twitter_credentials
+from conf import get_credentials
 from ronald_brain.util.constants import CSV_FILE_LOCATION
 
-auth = tweepy.OAuthHandler(twitter_credentials.CONSUMER_KEY, twitter_credentials.CONSUMER_SECRET)
-auth.set_access_token(twitter_credentials.ACCESS_KEY, twitter_credentials.ACCESS_SECRET)
-api = tweepy.API(auth)
 
 
 def load_csv(filename):
@@ -21,14 +18,21 @@ def load_csv(filename):
 
     with open(filename, newline='') as raw:
         next(raw)
-        r = csv.reader(raw, delimiter=',')
+        r = csv.reader(raw, delimiter='~')
         for row in r:
-            raw_tweets.append(row[2])
+            raw_tweets.append(row)
 
     return raw_tweets
 
 def get_tweets(user):
-    file = ''.join((CSV_FILE_LOCATION, "%s_tweets.txt" % user))
+    print("Getting tweets for user %s" % user)
+    creds = get_credentials.get_credentials(user)
+
+    auth = tweepy.OAuthHandler(creds["c_key"], creds["c_secret"])
+    auth.set_access_token(creds["a_key"], creds["a_secret"])
+    api = tweepy.API(auth)
+
+    file = ''.join((CSV_FILE_LOCATION, "%s_tweets.csv" % user))
     if(os.path.exists(file)):
         return load_csv(file)
 
@@ -63,7 +67,7 @@ def get_tweets(user):
     print("\n%s total tweets" % len(outtweets))
 
     with open(file, 'w', newline='') as f:
-        writer = csv.writer(f, delimiter=',')
+        writer = csv.writer(f, delimiter='~')
         writer.writerow(["id", "created_at", "text"])
         writer.writerows(outtweets)
 

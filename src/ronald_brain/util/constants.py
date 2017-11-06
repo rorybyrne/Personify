@@ -7,6 +7,7 @@ FRONT_PUNCTUATION = [',', '.', '?', '!', ':', ';']
 USELESS_PUNCTUATION = ['(', ')', '"', '\'', '^', '@', '-', '_', '*', '&', '$', '+', '=']
 NON_ENGLISH_WORDS = ['rt', 'amp', 'Rt']
 
+
 CSV_FILE_LOCATION = 'data/'
 
 EMOTICON_REGEX= r"""

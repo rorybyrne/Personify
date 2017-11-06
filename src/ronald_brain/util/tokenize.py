@@ -4,6 +4,7 @@ import enchant
 import re
 
 token_reg = re.compile(r'(' + '|'.join(TWEET_REGEXES) + ')', re.VERBOSE | re.IGNORECASE)
+d = enchant.Dict("en_UK")
 
 def get_flat_tokens(tokenized_tweets):
     '''
@@ -34,6 +35,8 @@ def tokenize_tweet(tweet):
     :param token_reg:
     :return list of tokens:
     """
+    # print(type(tweet))
+    # print(tweet)
     toks = token_reg.findall(tweet)
     return [t.lower() for t in toks]
 
@@ -53,8 +56,8 @@ def split_into_sentences(raw_data):
 
 def words_only(total_tokens):
     words = [w for w in total_tokens if w not in NON_ENGLISH_WORDS]
-    d = enchant.Dict("en_UK")
 
-    words = [w for w in words if d.check(w)]
+    words = [w for w in words if d.check(w.lower())]
+
 
     return words
