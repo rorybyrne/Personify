@@ -1,5 +1,5 @@
-# ronald-trump
-Markov Chain based text generator
+# Personify (was called Ronald Trump)
+Markov Chain based text generator. Reads a Twitter user's tweets and produces similar tweets.
 
 ## Branches
 ### Prod
