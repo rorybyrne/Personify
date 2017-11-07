@@ -1,10 +1,11 @@
 import tweepy
-from conf import twitter_credentials
+from conf import get_credentials
 
-auth = tweepy.OAuthHandler(twitter_credentials.CONSUMER_KEY, twitter_credentials.CONSUMER_SECRET)
-auth.set_access_token(twitter_credentials.ACCESS_KEY, twitter_credentials.ACCESS_SECRET)
-api = tweepy.API(auth)
+def send_tweet(text, user):
+    creds = get_credentials.get_credentials(user)
 
-def send_tweet(text):
+    auth = tweepy.OAuthHandler(creds["c_key"], creds["c_secret"])
+    auth.set_access_token(creds["a_key"], creds["a_secret"])
+    api = tweepy.API(auth)
 
     return api.update_status(text)
