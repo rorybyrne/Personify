@@ -18,3 +18,10 @@ inevitably make it through and must be weeded out before pushing to prod.
 - Tidy the pre-processor even more
 - Tests...
 - More tests...
+
+------------------------
+
+## Bots
+There are two bots currently operating on Twitter using Personify
+- [@DonaldoNumber9](https://twitter.com/DonaldoNumber9)
+- [@HarkMumphreys](https://twitter.com/HarkMumphreys)
