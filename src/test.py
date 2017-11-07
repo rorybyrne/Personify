@@ -4,7 +4,7 @@ from sys import exit
 import ronald_brain.util.constants as c
 
 user = 'markhumphrys'
-gen = generator.Generator(user, 3, 2)
+gen = generator.Generator(user, 4, 2)
 
 send_to_twitter = ''
 tweet = ''

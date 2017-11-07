@@ -1,11 +1,10 @@
 from ronald_brain.util.preprocessor import *
+from ronald_brain.util.tokenize import *
 from ronald_brain.util.constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION
 from wordcloud import WordCloud
 from wordcloud.tokenization import unigrams_and_bigrams, process_tokens
 
 import matplotlib.pyplot as plt
-
-import csv
 
 class TweetCloud(WordCloud):
     '''
@@ -34,11 +33,10 @@ class TweetCloud(WordCloud):
 
         return word_counts
 
-def create_word_cloud(file_name):
-    pp = Preprocessor(file_name)
-    words = pp.words_only()
+def create_word_cloud(user):
+    pp = Preprocessor(user)
 
-    wc = TweetCloud(width=800, height=400).generate(words)
+    wc = TweetCloud(width=800, height=400).generate(pp.words_only_flat)
 
     return wc
 

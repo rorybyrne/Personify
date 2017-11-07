@@ -2,6 +2,8 @@ import re
 import sys
 from enum import Enum
 from .twitter import tweets
+from .constants import SENTENCE_ENDERS
+from .constants import WEIGHTED_SENTENCE_ENDERS
 
 from .tokenize import *
 
@@ -27,7 +29,8 @@ class Preprocessor:
         """
 
         ### Keep the raw_tweets to be re-used as needed
-        self.raw_tweets = [t[2] for t in tweets.get_tweets(user)]
+        tweet_data = tweets.get_tweets(user)
+        self.raw_tweets = [t[2] for t in tweet_data]
 
         self.tokenized_tweets = tokenize_raw_tweets(self.raw_tweets)
         self.tokenized_flat = get_flat_tokens(self.tokenized_tweets)
@@ -37,9 +40,10 @@ class Preprocessor:
         # Set this based on what kind of output you want
         # Should be a flat list of tokens
         self.tokens_to_use = self.words_only_flat
+        self.tokens_to_use = [t  for t in self.tokens_to_use if not (t in SENTENCE_ENDERS)]
 
-    def all_tweets_as_string(self):
-        return ''.join(self.raw_tweets)
+    def string_total_words_only(self):
+        return ' '.join(self.words_only_flat)
 
 
         ###############################
@@ -59,9 +63,8 @@ class Preprocessor:
         :return list of strings, where each string contains `n` words:
         '''
         tweets = split_into_sentences(raw_data)
-        foo = [tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
-        tokenized_sentences = [words_only(t) for t in foo]
-        # print(tokenized_sentences[:10])
+        tokenized_sentences = [tokenize_tweet(sentence) for tweet in tweets for sentence in tweet]
+        tokenized_sentences = [words_only(t) for t in tokenized_sentences]
         tokenized_sentences = [s for s in tokenized_sentences if len(s) > 0]
         first_words = [tuple(s[:n]) for s in tokenized_sentences]
 

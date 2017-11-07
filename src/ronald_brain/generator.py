@@ -6,6 +6,8 @@ from ronald_brain.util import preprocessor
 from ronald_brain.util.preprocessor import Ngram
 from .util.ginger import ginger
 
+from .util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
+
 
 class Generator:
     """
@@ -15,7 +17,7 @@ class Generator:
     All models are created when the class is initialized with a filename.
     The entrypoint to get the next word is predict_next()
     """
-    def __init__(self, twitter_user=None, word_ngrams=2, sent_length_ngrams=2):
+    def __init__(self, twitter_user, word_ngrams=2, sent_length_ngrams=2, seed_words_n=2):
         """
         Here we initialize the Generator by creating all the models necessary
 
@@ -26,7 +28,7 @@ class Generator:
         self.preprocessor = preprocessor.Preprocessor(self.twitter_user)
         self.word_n = word_ngrams
         self.sentence_n = sent_length_ngrams
-        self.first_words_n = constants.FIRST_WORDS_N
+        self.seed_words_n = seed_words_n
 
         # we store a unique n-gram model for each n=2 -> n
         print("Building word n-gram models...")
@@ -38,7 +40,7 @@ class Generator:
         print("Sentence-length n-gram models built!\n")
 
         print("Building model for first words")
-        first_word_models = self.preprocessor.build_model_list(constants.FIRST_WORDS_N, Ngram.FIRST_WORD)
+        first_word_models = self.preprocessor.build_model_list(self.seed_words_n, Ngram.FIRST_WORD)
         print("First words n-gram models built!")
 
         self.models = {'word': word_ngram_models,
@@ -104,10 +106,13 @@ class Generator:
         :param seed_words:
         :return:
         '''
-        result = "bad"
-        output = ["a", "test", "sentence"]
+        if(length == 1):
+            length +=1
 
-        while(result):
+        is_ready = False
+        output = []
+
+        while(not is_ready):
             if(seed_words):
                 first_word = self.predict_next(constants.KEY_DELIMITER.join(seed_words), 'word')
             else:
@@ -127,15 +132,20 @@ class Generator:
                     prev = constants.KEY_DELIMITER.join(output[-self.word_n + 1:])
 
                 next_word = self.predict_next(prev, 'word')
-                # print("\n")
                 output.append(next_word)
 
             sent = ' '.join(output)
             candidate = postprocessor.run_pre_ginger(sent)
-            # print("Candidate:\n%s\n" % candidate)
+            # print("\nCandidate:\n\t%s" % candidate)
 
-            result = ginger.get_ginger_result(candidate)["LightGingerTheTextResult"]
+            # This value of the Ginger API result will not exist if the sentence is accepted by Ginger
+            is_ready = ginger.get_ginger_result(candidate)["LightGingerTheTextResult"] == []
 
+            if(is_ready and length > 2):
+                print("Ginger check passed!")
+                is_ready = not postprocessor.matches_corpus(output, self.preprocessor.string_total_words_only())
+
+        print("Corpus match check passed!")
         return output
 
 
@@ -143,6 +153,8 @@ class Generator:
     def generate(self, char_count):
         # The way of choosing the first words is a little hacky
         next_len = int(self.predict_next('', 'sent_len')) # Predictions are always strings. So we convert to int
+        if(next_len > 6):
+            next_len = int(round(next_len * SENTENCE_LENGTH_COEF))
         output = []
 
         char_total = 0
@@ -151,10 +163,13 @@ class Generator:
             if(char_total > char_count):
                 break
             sentence = self.generate_sentence(next_len)
+            ender = self.weighted_choice(WEIGHTED_SENTENCE_ENDERS)
             sent_string = ' '.join(sentence)
-            output.append(sent_string)
+            output.append(sent_string + ender)
 
             next_len = int(self.predict_next(str(len(output[-1])), 'sent_len')) # Predict the next sent_length
+            if (next_len > 6):
+                next_len = int(round(next_len * SENTENCE_LENGTH_COEF))
 
             char_total += len(sent_string)
 

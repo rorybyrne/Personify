@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
-def favourite_english_words():
-    pp = preprocessor.Preprocessor("/home/rory/projects/ronald/data/trump-tweets.csv")
-    words = pp.words_only()
-    count = Counter(words)
+def favourite_english_words(user):
+    user_twitter = constants.TWITTER_ACCOUNTS[user]
+    pp = preprocessor.Preprocessor(user_twitter)
+    count = Counter(pp.words_only_flat)
     labels, values = zip(*count.items())
 
     word_dict = {"word" : labels, "count": values}
@@ -23,12 +23,13 @@ def favourite_english_words():
     sns_plot = sns.factorplot(x='word', y='count', data=df, kind='bar', aspect=2)
     sns_plot.savefig("graphs/histograms/english_word_count.png")
 
-    # plt.show()
+    plt.show()
 
 
-def words_after_word(target_word):
-    pp = preprocessor.Preprocessor("/home/rory/projects/ronald/data/trump-tweets.csv", "/home/rory/projects/ronald/data/trump-speeches.txt")
-    words = [t for t in pp.combined_tokens if t not in USELESS_PUNCTUATION + FRONT_PUNCTUATION]
+def words_after_word(user, target_word):
+    user_twitter = constants.TWITTER_ACCOUNTS[user]
+    pp = preprocessor.Preprocessor(user_twitter)
+    words = [t for t in pp.tokenized_flat if t not in USELESS_PUNCTUATION + FRONT_PUNCTUATION]
 
     grams = pp.build_n_grams(words, 5)
 
@@ -45,13 +46,13 @@ def words_after_word(target_word):
     df = df.head(7)
 
     sns_plot = sns.factorplot(x='word', y='count', data=df, kind='bar', aspect=2)
-    # sns_plot.savefig("graphs/histograms/english_word_count.png")
+    sns_plot.savefig("graphs/%s/histograms/words_after_%s.png" % (user_twitter, target_word))
 
     plt.show()
 
 
-# favourite_english_words()
-words_after_word("trump")
+favourite_english_words("DONALD_TRUMP")
+words_after_word("DONALD_TRUMP", "clinton")
 
 
 

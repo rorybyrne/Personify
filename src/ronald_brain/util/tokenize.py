@@ -2,6 +2,7 @@ import nltk
 from .constants import NON_ENGLISH_WORDS, TWEET_REGEXES
 import enchant
 import re
+from nltk.corpus import stopwords
 
 token_reg = re.compile(r'(' + '|'.join(TWEET_REGEXES) + ')', re.VERBOSE | re.IGNORECASE)
 d = enchant.Dict("en_UK")
@@ -13,6 +14,11 @@ def get_flat_tokens(tokenized_tweets):
     :return:
     '''
     return [token for tweet in tokenized_tweets for token in tweet]
+
+def remove_stops(tokens):
+    stop_words = list(stopwords.words('english'))
+    return [t for t in tokens if t not in stop_words]
+
 
 
 def tokenize_raw_tweets(raw_tweets):
@@ -55,9 +61,14 @@ def split_into_sentences(raw_data):
 
 
 def words_only(total_tokens):
+    '''
+    Filter the tokens to remove tokens which are not English words
+    :param total_tokens:
+    :return:
+    '''
     words = [w for w in total_tokens if w not in NON_ENGLISH_WORDS]
 
-    words = [w for w in words if d.check(w.lower())]
+    words = [w for w in words if d.check(w)]
 
 
     return words
