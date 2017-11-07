@@ -13,10 +13,17 @@ while send_to_twitter != "y":
     if send_to_twitter == "q":
         exit(0)
 
-    tweet = "@%s %s" % (user, gen.generate(126))
+    tweet = "%s" % (gen.generate(126))
 
     print(tweet)
     send_to_twitter = input("Post to Twitter? y/n\nTo quit, type q\n")
 
-bot.send_tweet(tweet, user)
+tag = input("Tag %s? y/n\n" % user) == "y"
+
+if(tag):
+    bot.send_tweet("@" + tweet, user)
+else:
+    bot.send_tweet(tweet, user)
+
+
 print("Sent!")
