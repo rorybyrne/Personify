@@ -12,3 +12,8 @@ def get_credentials(user):
                 "c_secret": hark.CONSUMER_SECRET,
                 "a_key": hark.ACCESS_KEY,
                 "a_secret": hark.ACCESS_SECRET}
+    else:
+        return {"c_key": ronald.CONSUMER_KEY,
+                "c_secret": ronald.CONSUMER_SECRET,
+                "a_key": ronald.ACCESS_KEY,
+                "a_secret": ronald.ACCESS_SECRET}

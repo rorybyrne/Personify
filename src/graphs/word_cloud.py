@@ -4,6 +4,8 @@ from ronald_brain.util.constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELES
 from wordcloud import WordCloud
 from wordcloud.tokenization import unigrams_and_bigrams, process_tokens
 
+from nltk.corpus import stopwords
+
 import matplotlib.pyplot as plt
 
 class TweetCloud(WordCloud):
@@ -36,12 +38,20 @@ class TweetCloud(WordCloud):
 def create_word_cloud(user):
     pp = Preprocessor(user)
 
-    wc = TweetCloud(width=800, height=400).generate(pp.words_only_flat)
+    wc = TweetCloud(width=2000, height=2200,
+                    background_color="#001610",
+                    stopwords=set(stopwords.words('english'))).generate(' '.join(pp.words_only_flat))
 
     return wc
 
 def save_cloud(wordcloud):
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
+    # plt.show()
     plt.savefig('graphs/wordclouds/tweet_total_cloud.png')
+
+user = "realdonaldtrump"
+cloud = create_word_cloud(user)
+cloud.to_file('graphs/wordclouds/%s_tweet_cloud.png')
+
 
