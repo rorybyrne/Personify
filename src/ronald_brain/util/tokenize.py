@@ -1,11 +1,10 @@
 import nltk
 from .constants import NON_ENGLISH_WORDS, TWEET_REGEXES
-import enchant
 import re
 from nltk.corpus import stopwords
 
 token_reg = re.compile(r'(' + '|'.join(TWEET_REGEXES) + ')', re.VERBOSE | re.IGNORECASE)
-d = enchant.Dict("en_UK")
+real_words = set(nltk.corpus.words.words())
 
 def get_flat_tokens(tokenized_tweets):
     '''
@@ -68,7 +67,7 @@ def words_only(total_tokens):
     '''
     words = [w for w in total_tokens if w not in NON_ENGLISH_WORDS]
 
-    words = [w for w in words if d.check(w)]
+    words = [w for w in words if w in real_words]
 
 
     return words
