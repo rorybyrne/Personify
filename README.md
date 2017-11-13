@@ -1,4 +1,4 @@
-# Personify (was called Ronald Trump)
+# Personify
 Markov Chain based text generator. Reads a Twitter user's tweets and produces similar tweets.
 
 ## Branches
@@ -22,5 +22,5 @@ inevitably make it through and must be weeded out before pushing to prod.
 ------------------------
 
 ## Bots
-There are two bots currently operating on Twitter using Personify
+There is a bot currently running on Twitter
 - [@DonaldoNumber9](https://twitter.com/DonaldoNumber9)
