@@ -5,3 +5,5 @@ data/*.csv
 src/conf/twitter_credentials*.py
 # Tweet files
 *_tweets.txt
+
+*.png
