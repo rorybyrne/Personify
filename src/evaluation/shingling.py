@@ -3,14 +3,14 @@ from __future__ import division
 import itertools
 import csv
 
-product_list = []
+tweet_list = []
 
-csv_file = open('ShoppingData.csv')
+csv_file = open('donald_tweets.csv','rU')
 csv_reader = csv.reader(csv_file, delimiter=',')
 next(csv_reader)
 
 for row in csv_reader:
-    product_list.append(row[1] + " : " + row[4])
+    tweet_list.append(row[2])
 
 csv_file.close()
 
@@ -27,11 +27,11 @@ if __name__ == '__main__':
     k = 3   
   
     shingles = []
-    for product in product_list:
+    for tweet in tweet_list:
         sh = set()
-        size = len(product)
+        size = len(tweet)
         for i in range(size-k):
-            sh.add(product[i:i+k])
+            sh.add(tweet[i:i+k])
         # print("size=%s: %s") %(len(sh), sh)
         shingles.append(sh)
 
@@ -63,12 +63,12 @@ if __name__ == '__main__':
                     print("%s :jaccard=%s") %(c,jac)
                     print 'set number'
                     print num
-                    group_of_sets[num].add(product_list[i1])
-                    group_of_sets[num].add(product_list[i2])
+                    group_of_sets[num].add(tweet_list[i1])
+                    group_of_sets[num].add(tweet_list[i2])
                     break
             
-                elif product_list[i1] in group_of_sets[num] :
-                    group_of_sets[num].add(product_list[i2])
+                elif tweet_list[i1] in group_of_sets[num] :
+                    group_of_sets[num].add(tweet_list[i2])
                     print("%s :jaccard=%s") %(c,jac)
                     print 'added to set'
                     print num
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 #            print
  
 
-    f = open('ShoppingOutput.csv', 'wt')
+    f = open('kshingles.csv', 'wt')
 try:
     writer = csv.writer(f)
     writer.writerow( ('ClusterID', 'Product') )
