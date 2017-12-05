@@ -18,9 +18,11 @@ inevitably make it through and must be weeded out before pushing to prod.
 - Tidy the pre-processor even more
 - Tests...
 - More tests...
+- Try a neural approach
 
 ------------------------
 
 ## Bots
 There is a bot currently running on Twitter
 - [@DonaldoNumber9](https://twitter.com/DonaldoNumber9)
+- [@harkmumphreys](https://twitter.com/harkmumphreys)
