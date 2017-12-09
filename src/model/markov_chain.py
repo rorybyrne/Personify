@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from util.constants import KEY_DELIMITER
+
 
 class MarkovChain():
     def __init__(self, n_tuples, order):
