@@ -1,7 +1,7 @@
-from ronald_brain import generator
-from ronald_mouth import bot
 from sys import exit
-import ronald_brain.util.constants as c
+
+from generate import generator
+from bot import bot
 
 user = 'realdonaldtrump'
 gen = generator.Generator(user, 3, 2)

@@ -1,7 +1,26 @@
+import logging
+
+#######################
+### PROJECT DETAILS ###
+#######################
+
+PROJECT_NAME = "Personify"
+LOG_LEVEL = logging.DEBUG
+
+#######################
+### TWITTER DETAILS ###
+#######################
+
 TWITTER_ACCOUNTS = {
     "DONALD_TRUMP" : "realdonaldtrump",
     "MARK_HUMPHRYS": "markhumphrys"
 }
+
+TWEET_LOC_REAL = 'data/real/'
+
+########################
+### MODEL PARAMETERS ###
+########################
 
 KEY_DELIMITER = ' '
 CONSTANT = 5
@@ -13,18 +32,24 @@ SENTENCE_LENGTH_COEF = 0.6
 MAX_OVERLAP_RATIO = 0.9
 MAX_OVERLAP_TOTAL = 15
 
+WEIGHTED_SENTENCE_ENDERS = {'.': 0.8,
+                            '!': 0.1,
+                            '?': 0.1}
+
+###########
+### NLP ###
+###########
+
 FRONT_PUNCTUATION = [',', '.', '?', '!', ':', ';']
 USELESS_PUNCTUATION = ['(', ')', '"', '\'', '^', '@', '-', '_', '*', '&', '$', '+', '=']
 NON_ENGLISH_WORDS = ['rt', 'amp', 'Rt']
 
 SENTENCE_ENDERS = ['.', '!', '?']
-WEIGHTED_SENTENCE_ENDERS = {'.': 0.8,
-                            '!': 0.1,
-                            '?': 0.1}
+
 
 NUMBER_TWITTER_HANDLE_REGEX = r'\@*\w*\d+'
 
-CSV_FILE_LOCATION = 'data/'
+
 
 EMOTICON_REGEX= r"""
             (?:

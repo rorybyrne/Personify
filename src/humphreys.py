@@ -1,4 +1,4 @@
-from ronald_brain import generator
+from generate import generator
 
 g = generator.Generator("realdonaldtrump", 2, 2)
 print('')
