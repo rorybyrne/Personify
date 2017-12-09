@@ -3,8 +3,8 @@ from enum import Enum
 
 from data.twitter import tweets
 from model.markov_chain import MarkovChain
-from .constants import SENTENCE_ENDERS
-from .tokenize import *
+from processing.tokenize import *
+from util.constants import SENTENCE_ENDERS
 
 
 class Ngram(Enum):

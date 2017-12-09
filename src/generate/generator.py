@@ -1,11 +1,11 @@
 import random
 
-from generate.base_generator import BaseGenerator
+import processing.postprocess as postprocessor
 import util.constants as constants
-import util.postprocessor as postprocessor
-from util import preprocessor
-from util.preprocessor import Ngram
-from util.ginger import ginger
+from generate.base_generator import BaseGenerator
+from processing import preprocess
+from processing.ginger import ginger
+from processing.preprocess import Ngram
 from util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
 
 
@@ -28,7 +28,7 @@ class Generator(BaseGenerator):
         '''
         BaseGenerator.__init__(self)
         self.twitter_user = twitter_user
-        self.preprocessor = preprocessor.Preprocessor(self.twitter_user)
+        self.preprocessor = preprocess.Preprocessor(self.twitter_user)
         self.word_n = word_ngrams
         self.sentence_n = sent_length_ngrams
         self.seed_words_n = seed_words_n
