@@ -1,15 +1,15 @@
 import random
 
-import ronald_brain.util.constants as constants
-import ronald_brain.util.postprocessor as postprocessor
-from ronald_brain.util import preprocessor
-from ronald_brain.util.preprocessor import Ngram
-
+from generate.base_generator import BaseGenerator
+import util.constants as constants
+import util.postprocessor as postprocessor
+from util import preprocessor
+from util.preprocessor import Ngram
 from util.ginger import ginger
-from .util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
+from util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
 
 
-class Generator:
+class Generator(BaseGenerator):
     """
     This class will hold all of our models (there's a separate model
         per 2,3,n-gram of words, sentence length, and POS tag etc.).
@@ -18,18 +18,29 @@ class Generator:
     The entrypoint to get the next word is predict_next()
     """
     def __init__(self, twitter_user, word_ngrams=2, sent_length_ngrams=2, seed_words_n=2):
-        """
-        Here we initialize the Generator by creating all the models necessary
+        '''
+            Initialize the generator
 
         :param twitter_user:
         :param word_ngrams:
-        """
+        :param sent_length_ngrams:
+        :param seed_words_n:
+        '''
+        BaseGenerator.__init__(self)
         self.twitter_user = twitter_user
         self.preprocessor = preprocessor.Preprocessor(self.twitter_user)
         self.word_n = word_ngrams
         self.sentence_n = sent_length_ngrams
         self.seed_words_n = seed_words_n
 
+        self.models = self._build_models()
+
+
+    def _build_models(self):
+        '''
+            Here we construct all the models needed for text generation
+        :return dictionary of model_type `str` -> `list` of  models:
+        '''
         # we store a unique n-gram model for each n=2 -> n
         print("Building word n-gram models...")
         word_ngram_models = self.preprocessor.build_model_list(self.word_n, Ngram.WORD)
@@ -43,31 +54,30 @@ class Generator:
         first_word_models = self.preprocessor.build_model_list(self.seed_words_n, Ngram.FIRST_WORD)
         print("First words n-gram models built!")
 
-        self.models = {'word': word_ngram_models,
+        return {'word': word_ngram_models,
                        'sent_len': sentence_ngram_models,
                        'first_word': first_word_models}
 
-    def predict_next(self, ngram, model):
+
+    def predict_next(self, ngram, model_type):
         """
         Given an ngram, it consults the models to choose the next word.
         This is where the logic for using the models will exist. Right now it's a weighted random choice
             based on word n-grams.
-        TODO: Extend this to include some logic using sentence lengths
 
         :param ngram:
         :return:
         """
-        # print("Ngram as key: " + ngram)
 
         # if we are given a unigram, use unigram model
         if ngram == '': # use unigram model
-            model = self.models[model][0]
+            model = self.models[model_type][0]
             return self.weighted_choice(model.chain)
 
 
         n = len(ngram.split(constants.KEY_DELIMITER))
 
-        current_model = self.models[model][n]
+        current_model = self.models[model_type][n]
 
         # If either of these checks fails, we want to backoff to an n-1gram
         if ngram in current_model and len(current_model.for_word(ngram)) > 3:
@@ -76,7 +86,7 @@ class Generator:
         else:
             backoff_words = ngram.split(' ')[1:]
             backoff_ngram = ' '.join(backoff_words)
-            return self.predict_next(backoff_ngram, model)
+            return self.predict_next(backoff_ngram, model_type)
 
 
     def weighted_choice(self, dict):
@@ -97,6 +107,7 @@ class Generator:
             tmp += dict[k]
             if r < tmp:
                 return k
+
 
     def generate_sentence(self, length, seed_words=None):
         '''
@@ -147,7 +158,6 @@ class Generator:
 
         print("Corpus match check passed!")
         return output
-
 
 
     def generate(self, char_count):
