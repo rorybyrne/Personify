@@ -1,7 +1,7 @@
 from sys import exit
 
 from generate import generator
-from bot import bot
+from util import bot
 
 user = 'realdonaldtrump'
 gen = generator.Generator(user, 3, 2)

@@ -1,5 +1,5 @@
 import nltk.data
-from .constants import FRONT_PUNCTUATION, USELESS_PUNCTUATION, NUMBER_TWITTER_HANDLE_REGEX, MAX_OVERLAP_RATIO, MAX_OVERLAP_TOTAL
+from util.constants import FRONT_PUNCTUATION, USELESS_PUNCTUATION, NUMBER_TWITTER_HANDLE_REGEX, MAX_OVERLAP_RATIO, MAX_OVERLAP_TOTAL
 
 def run(text):
     text = remove_useless_punctuation(text)

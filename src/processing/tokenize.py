@@ -1,5 +1,5 @@
 import nltk
-from .constants import NON_ENGLISH_WORDS, TWEET_REGEXES
+from util.constants import NON_ENGLISH_WORDS, TWEET_REGEXES
 import enchant
 import re
 from nltk.corpus import stopwords
