@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-from ronald_brain.util.constants import *
-
 
 class MarkovChain():
     def __init__(self, n_tuples, order):

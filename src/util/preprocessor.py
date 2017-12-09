@@ -1,13 +1,10 @@
-import re
 import sys
 from enum import Enum
-from .twitter import tweets
+
+from data.twitter import tweets
+from model.markov_chain import MarkovChain
 from .constants import SENTENCE_ENDERS
-from .constants import WEIGHTED_SENTENCE_ENDERS
-
 from .tokenize import *
-
-from ronald_brain.models.markov_chain import MarkovChain
 
 
 class Ngram(Enum):
@@ -140,12 +137,12 @@ class Preprocessor:
 
     def build_model_list(self, n, type):
         """
-        Recursively build a list of models for n > 2.
-        We want a list of models so that we can implement the Backoff algorithm
+        Recursively build a list of model for n > 2.
+        We want a list of model so that we can implement the Backoff algorithm
         https://www.quora.com/What-is-backoff-in-NLP
 
-        :param models:
-        :return a list of n-gram models:
+        :param model:
+        :return a list of n-gram model:
         """
         if (n < 1):
             print("N must be at least 1. Quitting.")

@@ -1,14 +1,13 @@
-import ronald_brain.util.preprocessor as preprocessor
-import ronald_brain.util.constants as constants
-from ronald_brain.util.preprocessor import Ngram
-from ronald_brain.models.markov_chain import *
-
 from collections import Counter
-import seaborn as sns
-import matplotlib.pyplot as plt
 from pprint import pprint
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
+
+import util.constants as constants
+import util.preprocessor as preprocessor
+
 
 def favourite_english_words(user):
     user_twitter = constants.TWITTER_ACCOUNTS[user]

@@ -4,8 +4,8 @@ import ronald_brain.util.constants as constants
 import ronald_brain.util.postprocessor as postprocessor
 from ronald_brain.util import preprocessor
 from ronald_brain.util.preprocessor import Ngram
-from .util.ginger import ginger
 
+from util.ginger import ginger
 from .util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
 
 

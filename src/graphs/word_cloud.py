@@ -1,12 +1,10 @@
-from ronald_brain.util.preprocessor import *
-from ronald_brain.util.tokenize import *
-from ronald_brain.util.constants import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION
+import matplotlib.pyplot as plt
+from nltk.corpus import stopwords
 from wordcloud import WordCloud
 from wordcloud.tokenization import unigrams_and_bigrams, process_tokens
 
-from nltk.corpus import stopwords
+from util import TWEET_REGEXES, FRONT_PUNCTUATION, USELESS_PUNCTUATION
 
-import matplotlib.pyplot as plt
 
 class TweetCloud(WordCloud):
     '''
