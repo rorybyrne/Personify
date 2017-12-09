@@ -1,6 +1,6 @@
-from generate import generator
+from generate import markov_generator
 
-g = generator.Generator("realdonaldtrump", 2, 2)
+g = markov_generator.MarkovGenerator("realdonaldtrump", 2, 2)
 print('')
 
 send_to_twitter = ''

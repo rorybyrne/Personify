@@ -1,10 +1,10 @@
 from sys import exit
 
-from generate import generator
+from generate import markov_generator
 from util import bot
 
 user = 'realdonaldtrump'
-gen = generator.Generator(user, 3, 2)
+gen = markov_generator.MarkovGenerator(user, 3, 2)
 
 send_to_twitter = ''
 tweet = ''
