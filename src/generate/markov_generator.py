@@ -9,7 +9,7 @@ from processing.preprocess import Ngram
 from util.constants import SENTENCE_LENGTH_COEF, WEIGHTED_SENTENCE_ENDERS
 
 
-class Generator(BaseGenerator):
+class MarkovGenerator(BaseGenerator):
     """
     This class will hold all of our models (there's a separate model
         per 2,3,n-gram of words, sentence length, and POS tag etc.).
