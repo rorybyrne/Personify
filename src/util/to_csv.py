@@ -20,7 +20,8 @@ def parse_args():
         Basic argument parser. Additions here need to be reflected in
         config.settings also.
     '''
-    parser = argparse.ArgumentParser(description='''Cluster and Visualise Text Data''')
+    parser = argparse.ArgumentParser(description='''Produce a number of tweets based on a Twitter user, and then
+                                                        write them to a csv file''')
     parser.add_argument('--user',
                         help="Twitter user whose Tweets we will copy",
                         type=str,
