@@ -2,6 +2,7 @@ import argparse
 import csv
 import os.path
 from os.path import dirname
+import re
 import sys
 
 root_path = dirname(dirname(dirname(__file__)))
@@ -25,12 +26,13 @@ def parse_args():
         Basic argument parser. Additions here need to be reflected in
         config.settings also.
     '''
-    parser = argparse.ArgumentParser(description='''Cluster and Visualise Text Data''')
-    parser.add_argument('--user',
+    parser = argparse.ArgumentParser(description='''Download Tweets for the users specified with --user''')
+    parser.add_argument('--users',
                         help="Twitter username whose Tweets we will download",
                         type=str,
-                        default="realdonaldtrump",
-                        metavar="USER")
+                        nargs="+",
+                        required=True,
+                        metavar="USERS")
 
     return parser.parse_args()
 
@@ -76,8 +78,6 @@ def download_tweets(user):
 
     # make initial request for most recent tweets (200 is the maximum allowed count)
     new_tweets = api.user_timeline(screen_name=user, count=200, tweet_mode="extended")
-    for t in new_tweets:
-        print(t.full_text)
 
     # save most recent tweets
     alltweets.extend(new_tweets)
@@ -90,7 +90,7 @@ def download_tweets(user):
         logger.debug("getting tweets before %s" % (oldest))
 
         # all subsiquent requests use the max_id param to prevent duplicates
-        new_tweets = api.user_timeline(screen_name=user, count=200, max_id=oldest)
+        new_tweets = api.user_timeline(screen_name=user, count=200, max_id=oldest, tweet_mode="extended")
 
         # save most recent tweets
         alltweets.extend(new_tweets)
@@ -100,7 +100,7 @@ def download_tweets(user):
 
         logger.debug("...%s tweets downloaded so far" % (len(alltweets)))
 
-    outtweets = [[tweet.id_str, tweet.created_at, tweet.full_text] for tweet in alltweets]
+    outtweets = [[tweet.id_str, tweet.created_at, re.sub("\n", " ", tweet.full_text)] for tweet in alltweets]
     logger.debug("\n%s total tweets" % len(outtweets))
 
     with open(file, 'w', newline='') as f:
@@ -110,4 +110,5 @@ def download_tweets(user):
 
 if __name__ == '__main__':
     opts = parse_args()
-    download_tweets(opts.user)
+    for u in opts.users:
+        download_tweets(u)
