@@ -75,7 +75,9 @@ def download_tweets(user):
     alltweets = []
 
     # make initial request for most recent tweets (200 is the maximum allowed count)
-    new_tweets = api.user_timeline(screen_name=user, count=200)
+    new_tweets = api.user_timeline(screen_name=user, count=200, tweet_mode="extended")
+    for t in new_tweets:
+        print(t.full_text)
 
     # save most recent tweets
     alltweets.extend(new_tweets)
@@ -98,7 +100,7 @@ def download_tweets(user):
 
         logger.debug("...%s tweets downloaded so far" % (len(alltweets)))
 
-    outtweets = [[tweet.id_str, tweet.created_at, tweet.text] for tweet in alltweets]
+    outtweets = [[tweet.id_str, tweet.created_at, tweet.full_text] for tweet in alltweets]
     logger.debug("\n%s total tweets" % len(outtweets))
 
     with open(file, 'w', newline='') as f:
